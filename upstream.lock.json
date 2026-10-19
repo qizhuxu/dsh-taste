@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "taste-skill",
+      "repo": "Leonxlnx/taste-skill",
+      "ref": "main",
+      "commit": "b9ca2fd8047f4c72d7da90ebc1c1203e57c72cd2",
+      "homepage": "https://github.com/Leonxlnx/taste-skill",
+      "license": "MIT"
+    }
+  ],
+  "upstreamDirs": [
+    "brandkit",
+    "brutalist-skill",
+    "gpt-tasteskill",
+    "image-to-code-skill",
+    "imagegen-frontend-mobile",
+    "imagegen-frontend-web",
+    "minimalist-skill",
+    "redesign-skill",
+    "soft-skill",
+    "stitch-skill",
+    "taste-skill",
+    "taste-skill-v1",
+    "taste-skill-v2-experimental"
+  ],
+  "skipped": [
+    {
+      "dir": "brandkit",
+      "name": "brandkit",
+      "reason": "上游墓碑：正文写着已迁至 github.com/Leonxlnx/imagegen-skills，真身不在本仓库"
+    },
+    {
+      "dir": "image-to-code-skill",
+      "name": "image-to-code",
+      "reason": "上游墓碑：同上"
+    },
+    {
+      "dir": "imagegen-frontend-mobile",
+      "name": "imagegen-frontend-mobile",
+      "reason": "上游墓碑：同上"
+    },
+    {
+      "dir": "imagegen-frontend-web",
+      "name": "imagegen-frontend-web",
+      "reason": "上游墓碑：同上"
+    },
+    {
+      "dir": "redesign-skill",
+      "name": "redesign-existing-projects",
+      "reason": "上游墓碑：已废弃，功能并入 design-taste-frontend"
+    }
+  ],
+  "skills": [
+    {
+      "dir": "taste-skill",
+      "name": "design-taste-frontend",
+      "files": 38,
+      "treeHash": "604d7e9e903ea573fae7e0e5acff37cf9dd9b685b2c9b8dd7d738c844a7bdeef"
+    },
+    {
+      "dir": "taste-skill-v1",
+      "name": "design-taste-frontend-v1",
+      "files": 2,
+      "treeHash": "932db69529af7b02cad05a8586cab87603320a53099f5976b62396c48f68a79a"
+    },
+    {
+      "dir": "taste-skill-v2-experimental",
+      "name": "design-taste-frontend-v2-experimental",
+      "files": 2,
+      "treeHash": "8baf6cf9b2a07d52e9bac877bd6c58ac86a8110bcc4abd9cdceb30fc3584129e"
+    },
+    {
+      "dir": "gpt-tasteskill",
+      "name": "gpt-taste",
+      "files": 2,
+      "treeHash": "ca762335e1d7469758b8eeab1af767179a12886e72c3e08612a0f568f89e4fb5"
+    },
+    {
+      "dir": "soft-skill",
+      "name": "high-end-visual-design",
+      "files": 2,
+      "treeHash": "e11dcb9ab369e577945e85dcf457c74cc6479493a889ceb888c695985d41d964"
+    },
+    {
+      "dir": "brutalist-skill",
+      "name": "industrial-brutalist-ui",
+      "files": 2,
+      "treeHash": "2cb5d81a6a6a854c34cab1ac12ae3ca20013231a1d91f486e2643b4f8302142a"
+    },
+    {
+      "dir": "minimalist-skill",
+      "name": "minimalist-ui",
+      "files": 2,
+      "treeHash": "b226d013635e92d7d32e8815e03e3925d4967466332fd69ac7c6dd2a2a15ac1e"
+    },
+    {
+      "dir": "stitch-skill",
+      "name": "stitch-design-taste",
+      "files": 3,
+      "treeHash": "136f6235d6657a4a572331906703d3a3eda9a0bc0aa8d2e180e2122adb90a885"
+    }
+  ]
+}

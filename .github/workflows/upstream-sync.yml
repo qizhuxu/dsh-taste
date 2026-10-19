@@ -1,0 +1,93 @@
+name: upstream-sync
+
+# 上游 taste-skill 一有更新，就自动重新封装并开 PR。
+# --check 会比对：上游 commit、本地打包内容的 treeHash、目录集合。
+# 无漂移时 --check 退出 0，本工作流安静结束。
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      drift: ${{ steps.check.outcome == 'failure' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 比对上游
+        id: check
+        continue-on-error: true
+        run: node scripts/vendor.mjs --check
+
+  resync:
+    needs: check
+    if: needs.check.outputs.drift == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 记录上游旧 commit
+        id: before
+        run: echo "commit=$(node -p "require('./upstream.lock.json').sources[0].commit" 2>/dev/null || echo none)" >> "$GITHUB_OUTPUT"
+
+      - name: 重新封装
+        run: node scripts/vendor.mjs
+
+      - name: 递增 patch 版本
+        id: bump
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+            const [major, minor, patch] = pkg.version.split('.').map(Number);
+            pkg.version = major + '.' + minor + '.' + (patch + 1);
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + pkg.version + '\n');
+          "
+
+      - name: 重新打包清单里的版本号
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+            const m = JSON.parse(fs.readFileSync('skills/taste.manifest.json','utf8'));
+            m.pluginVersion = pkg.version;
+            m.generatedAt = new Date().toISOString();
+            fs.writeFileSync('skills/taste.manifest.json', JSON.stringify(m, null, 2) + '\n');
+          "
+
+      - name: 自检（打包后必须无漂移）
+        run: node scripts/vendor.mjs --check
+
+      - name: 开 PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.bump.outputs.version }}
+          OLD_COMMIT: ${{ steps.before.outputs.commit }}
+        run: |
+          NEW_COMMIT=$(node -p "require('./upstream.lock.json').sources[0].commit")
+          BRANCH="upstream-sync/$(echo "$NEW_COMMIT" | cut -c1-8)"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "chore: re-vendor taste-skill ${OLD_COMMIT:0:8} -> ${NEW_COMMIT:0:8} (v${NEW_VERSION})"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --title "chore: 上游 taste-skill 更新 ${OLD_COMMIT:0:8} → ${NEW_COMMIT:0:8}" \
+            --body "自动重新封装。\n\n- 上游：\`${OLD_COMMIT}\` → \`${NEW_COMMIT}\`\n- 插件版本：v${NEW_VERSION}\n- \`skills/\` 由 \`scripts/vendor.mjs\` 重建，已通过 \`--check\`\n\n合并后请发新版（打 tag 或 \`npm publish\`）。" \
+            --base main --head "$BRANCH"
