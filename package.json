@@ -1,6 +1,6 @@
 {
   "name": "dsh-taste",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "taste-skill 的 DeepSeek Harness 原生插件：把 design-taste-frontend 等技能与它的四个脚本（抽签 / 素材 / 静态检查 / 真实浏览器闸门）注册成 DSH 技能与工具，并可随上游自动重新封装",
   "license": "MIT",
   "author": "dsh-taste contributors",
@@ -23,6 +23,7 @@
   },
   "files": [
     "LICENSE",
+    "NOTICE.md",
     "README.md",
     "cordis.patch.yml",
     "lib",

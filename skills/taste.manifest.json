@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "0.1.0",
-  "generatedAt": "2026-10-19T14:22:37.971Z",
+  "pluginVersion": "0.2.0",
+  "generatedAt": "2026-10-19T15:18:40.091Z",
   "sources": [
     {
       "id": "taste-skill",
@@ -43,6 +43,7 @@
     {
       "dir": "brutalist-skill",
       "name": "industrial-brutalist-ui",
+      "primary": false,
       "description": "Classic style skill, opt-in: it runs only when called by name. A hard mechanical look with Swiss type, rigid grids, extreme scale contrast and utilitarian colour.",
       "whenToUse": null,
       "modelInvocable": false,
@@ -56,6 +57,7 @@
     {
       "dir": "gpt-tasteskill",
       "name": "gpt-taste",
+      "primary": false,
       "description": "Classic skill for GPT and Codex, opt-in: it runs only when called by name. Layout variance, a strict AIDA page structure and GSAP scroll motion.",
       "whenToUse": null,
       "modelInvocable": false,
@@ -69,6 +71,7 @@
     {
       "dir": "minimalist-skill",
       "name": "minimalist-ui",
+      "primary": false,
       "description": "Classic style skill, opt-in: it runs only when called by name. Editorial product UI with a warm monochrome palette, typographic contrast and flat bento grids.",
       "whenToUse": null,
       "modelInvocable": false,
@@ -82,6 +85,7 @@
     {
       "dir": "soft-skill",
       "name": "high-end-visual-design",
+      "primary": false,
       "description": "Classic style skill, opt-in: it runs only when called by name. A calm, polished look with soft contrast, generous whitespace and spring motion.",
       "whenToUse": null,
       "modelInvocable": false,
@@ -95,6 +99,7 @@
     {
       "dir": "stitch-skill",
       "name": "stitch-design-taste",
+      "primary": false,
       "description": "Classic skill for Google Stitch, opt-in: it runs only when called by name. Writes an agent-friendly DESIGN.md with strict type, colour and layout rules.",
       "whenToUse": null,
       "modelInvocable": false,
@@ -108,6 +113,7 @@
     {
       "dir": "taste-skill",
       "name": "design-taste-frontend",
+      "primary": true,
       "description": "tasteskill v2, the anti-slop frontend skill. Art direction for websites, distilled from a study of 247 curated gallery sites (One Page Love, Awwwards Sites of the Day). Deals researched directions (idea, composition, type, palette, photographs, section blueprints) from a library, enforces a strict no-slop house style with a real-browser inspector, and runs a look-and-fix loop on screenshots. Use this whenever you build, design, redesign, restyle, polish or review a landing page, marketing site, portfolio, product page, one-pager, hero or any public-facing web page, in any stack (HTML/CSS, React, Next.js, Vue, Svelte, Astro, Tailwind) — also when the user says a page looks generic, templated, \"AI-made\", sloppy, or asks to make it look designed, premium, award-level or less like every other site. Also for app screens: dashboards, admin and analytics views, settings, inboxes and other screens people work in, with their own run and rules.",
       "whenToUse": null,
       "modelInvocable": true,
@@ -121,6 +127,7 @@
     {
       "dir": "taste-skill-v1",
       "name": "design-taste-frontend-v1",
+      "primary": false,
       "description": "The original taste-skill v1, kept for projects that depend on its exact behaviour. Opt-in: it runs only when called by name.",
       "whenToUse": null,
       "modelInvocable": false,
@@ -134,6 +141,7 @@
     {
       "dir": "taste-skill-v2-experimental",
       "name": "design-taste-frontend-v2-experimental",
+      "primary": false,
       "description": "The single-file, dial-driven taste-skill that was the default before v2, kept for projects that depend on its exact behaviour. Opt-in: it runs only when called by name.",
       "whenToUse": null,
       "modelInvocable": false,

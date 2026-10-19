@@ -7,6 +7,8 @@
       "repo": "Leonxlnx/taste-skill",
       "ref": "main",
       "skillsDir": "skills",
+      "primary": "taste-skill",
+      "primaryComment": "skills/ 下的哪个目录是本插件的主技能。插件默认只把主技能暴露成一条技能/命令，其余风格通过主技能正文里的指令按需读取；primary 会被写进 manifest 的 primary 字段。",
       "homepage": "https://github.com/Leonxlnx/taste-skill",
       "license": "MIT"
     }
@@ -20,6 +22,6 @@
   },
   "notes": [
     "skip 只影响是否复制进本仓库并在目录里出现，不影响 upstream.lock.json 记录上游全部目录，便于审计上游新增/删除。",
-    "新增的上游技能若不在 skip 里，会被自动纳入，无需改这里的代码。"
+    "新增的上游技能若不在 skip 里，会被自动纳入，无需改这里的代码；它们会自动成为「主技能正文里可点名的其他风格」。"
   ]
 }

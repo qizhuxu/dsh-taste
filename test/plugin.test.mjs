@@ -4,7 +4,8 @@
  *  - 用一个假的 ctx 调 apply()，验证 provider 与五个工具都被注册；
  *  - 用 node:child_process 实现一个忠实的 subprocess 垫片（同 done / collected 形状），
  *    让工具真的去执行上游脚本，从而验证 argv 拼装正确、退出码语义正确；
- *  - 断言技能清单与上游 frontmatter 一致（含「按名调用」的策略）。
+ *  - 验证「单入口」行为：默认只列出一个技能（skills 面只有一条命令），
+ *    其余风格以指令形式写进主技能正文；listAllStyles: true 时回到 8 条并列。
  */
 
 import { test, before, after } from 'node:test';
@@ -15,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { apply, inject, name } from '../lib/index.js';
+import { frontmatterModelInvocable, SKILLS_DIR, stripFrontmatter } from '../lib/provider.js';
 
 /** 忠实模拟 DSH 的 subprocess.spawn 契约：handle.done + handle.collected.*.readFrom(0)。 */
 function makeSpawnShim() {
@@ -40,7 +42,7 @@ function makeSpawnShim() {
   return { spawnShim, calls };
 }
 
-function makeCtx() {
+function makeCtx(config) {
   const { spawnShim, calls } = makeSpawnShim();
   const state = { providers: [], tools: [], spawnCalls: calls, disposed: 0 };
   const ctx = {
@@ -56,19 +58,31 @@ function makeCtx() {
     on: () => {},
     logger: { warn() {}, info() {} }
   };
-  return { ctx, state };
+  apply(ctx, config);
+  return state;
 }
 
+const ALL_STYLES = [
+  'design-taste-frontend',
+  'design-taste-frontend-v1',
+  'design-taste-frontend-v2-experimental',
+  'gpt-taste',
+  'high-end-visual-design',
+  'industrial-brutalist-ui',
+  'minimalist-ui',
+  'stitch-design-taste'
+];
+
 let state;
+let allState;
 let workdir;
 const exec = () => ({ signal: undefined, agent: { session: { header: { cwd: workdir } } } });
 const tool = (toolName) => state.tools.find((item) => item.name === toolName);
 
 before(async () => {
   workdir = await mkdtemp(join(tmpdir(), 'dsh-taste-test-'));
-  const { ctx, state: s } = makeCtx();
-  state = s;
-  apply(ctx, {});
+  state = makeCtx({});                                  // 默认：单入口
+  allState = makeCtx({ listAllStyles: true });          // 可选：8 条并列
 });
 
 after(async () => {
@@ -94,26 +108,28 @@ test('apply() 注册了一个 skill provider 与五个工具', () => {
   }
 });
 
-test('provider.list() 返回打包的 8 个技能，rank 为 380，调用策略与上游 frontmatter 一致', async () => {
+test('默认只列出一个技能，skills 面因此只有一条命令', async () => {
   const candidates = await state.providers[0].list({});
+  assert.equal(candidates.length, 1, '默认应只列出主技能');
+  const [only] = candidates;
+  assert.equal(only.name, 'design-taste-frontend');
+  assert.equal(only.rank, 380);
+  assert.equal(only.provider, 'taste-provider');
+  assert.equal(only.invocation.modelInvocable, true);
+  assert.equal(only.invocation.userInvocable, true);
+  assert.equal(only.resourceBase.kind, 'directory');
+});
+
+test('listAllStyles: true 时回到 8 个技能并列（调用策略与上游 frontmatter 一致）', async () => {
+  const candidates = await allState.providers[0].list({});
   assert.equal(candidates.length, 8);
   const byName = new Map(candidates.map((item) => [item.name, item]));
-  assert.deepEqual([...byName.keys()].sort(), [
-    'design-taste-frontend',
-    'design-taste-frontend-v1',
-    'design-taste-frontend-v2-experimental',
-    'gpt-taste',
-    'high-end-visual-design',
-    'industrial-brutalist-ui',
-    'minimalist-ui',
-    'stitch-design-taste'
-  ]);
+  assert.deepEqual([...byName.keys()].sort(), ALL_STYLES);
   for (const candidate of candidates) {
     assert.equal(candidate.rank, 380, candidate.name + ' 的 rank 应为 380');
     assert.equal(candidate.provider, 'taste-provider');
     assert.equal(candidate.resourceBase.kind, 'directory');
   }
-  // 上游只在主技能上放开模型调用，其余 7 个是 disable-model-invocation: true
   assert.equal(byName.get('design-taste-frontend').invocation.modelInvocable, true);
   for (const other of [...byName.values()].filter((item) => item.name !== 'design-taste-frontend')) {
     assert.equal(other.invocation.modelInvocable, false, other.name + ' 应只按名调用');
@@ -121,10 +137,32 @@ test('provider.list() 返回打包的 8 个技能，rank 为 380，调用策略�
   }
 });
 
-test('provider.get() 对每个技能都返回去掉了 frontmatter 的正文', async () => {
+test('主技能正文末尾追加了其他风格的指令与文件绝对路径', async () => {
   const candidates = await state.providers[0].list({});
+  const skill = await state.providers[0].get(candidates[0], {});
+  assert.ok(skill.content.includes('Other styles shipped in this plugin'), '应有其他风格段落');
+  assert.ok(skill.content.includes('| `gpt-taste` |'), '应列出 gpt-taste');
+  // 7 个其他风格，每个都要给出可读的绝对路径
+  for (const style of ALL_STYLES.filter((item) => item !== 'design-taste-frontend')) {
+    assert.ok(skill.content.includes('`' + style + '`'), '应提到 ' + style);
+  }
+  assert.ok(skill.content.includes(join(SKILLS_DIR, 'gpt-tasteskill', 'SKILL.md')), '应给出绝对路径');
+  assert.ok(skill.content.includes('Do **not** blend a named style'), '应说明不要混用');
+  // 正文仍然不含 frontmatter
+  assert.ok(!skill.content.startsWith('---'));
+});
+
+test('listAllStyles 模式下不追加其他风格段落', async () => {
+  const candidates = await allState.providers[0].list({});
+  const primary = candidates.find((item) => item.name === 'design-taste-frontend');
+  const skill = await allState.providers[0].get(primary, {});
+  assert.ok(!skill.content.includes('Other styles shipped in this plugin'), '并列模式下无需追加');
+});
+
+test('provider.get() 对每个技能都返回去掉了 frontmatter 的正文', async () => {
+  const candidates = await allState.providers[0].list({});
   for (const candidate of candidates) {
-    const skill = await state.providers[0].get(candidate, {});
+    const skill = await allState.providers[0].get(candidate, {});
     assert.ok(skill !== undefined, candidate.name + ' 应能加载');
     assert.equal(skill.name, candidate.name);
     assert.equal(skill.provider, 'taste-provider');
@@ -138,13 +176,41 @@ test('provider.get() 对陌生候选返回 undefined（不抛异常）', async (
   assert.equal(skill, undefined);
 });
 
+test('frontmatterModelInvocable 能读出外部工具的启用/停用开关', () => {
+  assert.equal(frontmatterModelInvocable('---\nname: x\ndisable-model-invocation: true\n---\nbody'), false);
+  assert.equal(frontmatterModelInvocable('---\nname: x\ndisable-model-invocation: false\n---\nbody'), true);
+  assert.equal(frontmatterModelInvocable('---\nname: x\ndisable-model-invocation: on\n---\n'), false);
+  assert.equal(frontmatterModelInvocable('---\nname: x\n---\nbody'), undefined, '没有该字段应返回 undefined');
+  assert.equal(frontmatterModelInvocable('no frontmatter'), undefined);
+});
+
+test('技能面板改写 frontmatter 后，provider 立刻反映（不再只认打包快照）', async () => {
+  const skillFile = join(SKILLS_DIR, 'taste-skill', 'SKILL.md');
+  const original = await readFile(skillFile, 'utf8');
+  try {
+    await writeFile(skillFile, original.replace(/^name:/m, 'disable-model-invocation: true\nname:'), 'utf8');
+    const off = await state.providers[0].list({});
+    assert.equal(off[0].invocation.modelInvocable, false, '改成 true 后应变为不可模型调用');
+    await writeFile(skillFile, original, 'utf8');
+    const on = await state.providers[0].list({});
+    assert.equal(on[0].invocation.modelInvocable, true, '还原后应恢复');
+  } finally {
+    await writeFile(skillFile, original, 'utf8');
+  }
+});
+
+test('stripFrontmatter 只剥开头那一段', () => {
+  assert.equal(stripFrontmatter('---\na: 1\n---\nbody\n---\nmore'), 'body\n---\nmore');
+  assert.equal(stripFrontmatter('no frontmatter'), 'no frontmatter');
+});
+
 test('taste_status 读出打包版本与上游 commit', async () => {
   const value = await tool('taste_status').execute({}, exec());
   assert.equal(value.ok, true);
-  assert.equal(value.skillCount, 8);
+  assert.equal(value.skillCount, 8, '插件仍然携带 8 个技能，只是默认只暴露 1 个');
   assert.match(value.sources[0].commit, /^[0-9a-f]{40}$/);
   const rendered = tool('taste_status').output.render({}, value)[0].text;
-  assert.match(rendered, /dsh-taste 0\.1\.0/);
+  assert.match(rendered, /dsh-taste 0\.2\.0/);
   assert.match(rendered, /纳入 8 个技能/);
 });
 
@@ -195,4 +261,3 @@ test('taste_inspect 真的启动浏览器并在三档视口判定', async () => 
   assert.equal(report.viewports.length, 3, '应在 1440/768/390 三档各测一次');
   assert.deepEqual(report.viewports.map((item) => item.width), [1440, 768, 390]);
 });
-

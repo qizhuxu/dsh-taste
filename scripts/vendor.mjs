@@ -201,6 +201,8 @@ async function main() {
       skills.push({
         dir,
         name: data.name,
+        // 主技能：插件默认只把它暴露成一条技能/命令，其余风格进主技能正文里的指令
+        primary: dir === source.primary,
         description: typeof data.description === 'string' ? data.description : '',
         whenToUse: typeof data.whenToUse === 'string' && data.whenToUse.length > 0 ? data.whenToUse : null,
         modelInvocable: !truthy(data['disable-model-invocation']),
