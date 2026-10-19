@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "pluginVersion": "0.1.0",
-  "generatedAt": "2026-10-19T13:32:37.664Z",
+  "generatedAt": "2026-10-19T13:48:43.060Z",
   "sources": [
     {
       "id": "taste-skill",
@@ -48,10 +48,10 @@
       "modelInvocable": true,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 1035,
+      "bodyStart": 1021,
       "files": 38,
-      "bytes": 2456346,
-      "treeHash": "604d7e9e903ea573fae7e0e5acff37cf9dd9b685b2c9b8dd7d738c844a7bdeef"
+      "bytes": 2419253,
+      "treeHash": "9ca92d720c137bf5a48789a08dd8bed2e27cf8c9013273c879bf61248022e086"
     },
     {
       "dir": "taste-skill-v1",
@@ -61,10 +61,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 215,
+      "bodyStart": 210,
       "files": 2,
-      "bytes": 21370,
-      "treeHash": "932db69529af7b02cad05a8586cab87603320a53099f5976b62396c48f68a79a"
+      "bytes": 21141,
+      "treeHash": "0d57aa633a43a01cf75c95944845c1984ad42e9d5d76e7450a28d7af073e1b1b"
     },
     {
       "dir": "taste-skill-v2-experimental",
@@ -74,10 +74,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 272,
+      "bodyStart": 267,
       "files": 2,
-      "bytes": 90700,
-      "treeHash": "8baf6cf9b2a07d52e9bac877bd6c58ac86a8110bcc4abd9cdceb30fc3584129e"
+      "bytes": 89469,
+      "treeHash": "577971cc4331035775fb26747b9dc1941d8f2adff84b8be78187e0edfa31f9d2"
     },
     {
       "dir": "gpt-tasteskill",
@@ -87,10 +87,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 220,
+      "bodyStart": 215,
       "files": 2,
-      "bytes": 8370,
-      "treeHash": "ca762335e1d7469758b8eeab1af767179a12886e72c3e08612a0f568f89e4fb5"
+      "bytes": 8292,
+      "treeHash": "24bc8d013352f32e175ad936d5796153397a89899a45044a7a0e0e0b6b5c1082"
     },
     {
       "dir": "soft-skill",
@@ -100,10 +100,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 232,
+      "bodyStart": 227,
       "files": 2,
-      "bytes": 10647,
-      "treeHash": "e11dcb9ab369e577945e85dcf457c74cc6479493a889ceb888c695985d41d964"
+      "bytes": 10546,
+      "treeHash": "d6ef389ce555f365d4d33a0e2b9ae0cb48ecb41ac3b2a191aa8c3c3c9000514b"
     },
     {
       "dir": "brutalist-skill",
@@ -113,10 +113,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 252,
+      "bodyStart": 247,
       "files": 2,
-      "bytes": 8503,
-      "treeHash": "2cb5d81a6a6a854c34cab1ac12ae3ca20013231a1d91f486e2643b4f8302142a"
+      "bytes": 8408,
+      "treeHash": "fac2551f7aa733568aa5e67f5d88bcb66988069482135c801eda92a6a1a2ca8c"
     },
     {
       "dir": "minimalist-skill",
@@ -126,10 +126,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 238,
+      "bodyStart": 233,
       "files": 2,
-      "bytes": 8390,
-      "treeHash": "b226d013635e92d7d32e8815e03e3925d4967466332fd69ac7c6dd2a2a15ac1e"
+      "bytes": 8301,
+      "treeHash": "f2c0419ad93476b3223ad195cd7e7baa16edace5bd9971cd2ebae28ab7556565"
     },
     {
       "dir": "stitch-skill",
@@ -139,10 +139,10 @@
       "modelInvocable": false,
       "userInvocable": true,
       "source": "taste-skill",
-      "bodyStart": 238,
+      "bodyStart": 233,
       "files": 3,
-      "bytes": 24181,
-      "treeHash": "136f6235d6657a4a572331906703d3a3eda9a0bc0aa8d2e180e2122adb90a885"
+      "bytes": 23873,
+      "treeHash": "d812a0c8f52cd88c0460a29dfbfa8490326e97ba8e01b4c6aa9cf542142df557"
     }
   ]
 }

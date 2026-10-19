@@ -39,6 +39,35 @@ function git(args, cwd) {
   return (result.stdout || '').trim();
 }
 
+/**
+ * 浅克隆上游。**必须显式关掉换行转换**：
+ * Windows 上 core.autocrlf 默认会把签出的 LF 变成 CRLF，那样打包内容与上游 git 里的
+ * 字节不一致，treeHash 也就不可复现（Linux CI 与 Windows 本地会算出两个值）。
+ */
+function gitClone(url, ref, work) {
+  git(['-c', 'core.autocrlf=false', '-c', 'core.eol=lf', '-c', 'core.safecrlf=false',
+    'clone', '--depth', '1', '--branch', ref, url, work]);
+}
+
+/** 打包内容里出现 CR 就说明换行被转换过，属于打包缺陷，要立刻失败而不是悄悄提交。 */
+const TEXT_EXT = new Set(['.md', '.markdown', '.json', '.yml', '.yaml', '.js', '.mjs', '.cjs', '.ts', '.tsx', '.css', '.html', '.htm', '.txt', '.sh']);
+
+async function assertNoCrlf(dir) {
+  const offenders = [];
+  for (const file of await walk(dir)) {
+    const dot = file.path.lastIndexOf('.');
+    if (dot < 0 || !TEXT_EXT.has(file.path.slice(dot).toLowerCase())) continue;
+    const raw = await readFile(join(dir, file.path));
+    if (raw.includes(13)) offenders.push(file.path);
+  }
+  if (offenders.length > 0) {
+    throw new Error(
+      `打包内容含 CRLF，treeHash 将不可复现（换行被转换过）：${offenders.slice(0, 5).join('、')}` +
+      (offenders.length > 5 ? ` 等 ${offenders.length} 个文件` : '')
+    );
+  }
+}
+
 /** 解析 SKILL.md 的 YAML frontmatter 子集：标题键、单行标量、`>`/`|` 折叠与字面块。 */
 function parseFrontmatter(raw) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(raw);
@@ -122,7 +151,7 @@ async function main() {
 
     const work = join(TMP, source.id);
     await rm(work, { recursive: true, force: true });
-    git(['clone', '--depth', '1', '--branch', source.ref, url, work]);
+    gitClone(url, source.ref, work);
     const head = git(['rev-parse', 'HEAD'], work);
     if (head !== commit) throw new Error(`${source.id} 克隆到的 HEAD(${head}) 与解析结果(${commit}) 不一致`);
 
@@ -147,6 +176,7 @@ async function main() {
       const target = join(SKILLS_OUT, dir);
       await rm(target, { recursive: true, force: true });
       await cp(from, target, { recursive: true });
+      await assertNoCrlf(target);
 
       const files = await walk(target);
       skills.push({

@@ -57,49 +57,49 @@
       "dir": "taste-skill",
       "name": "design-taste-frontend",
       "files": 38,
-      "treeHash": "604d7e9e903ea573fae7e0e5acff37cf9dd9b685b2c9b8dd7d738c844a7bdeef"
+      "treeHash": "9ca92d720c137bf5a48789a08dd8bed2e27cf8c9013273c879bf61248022e086"
     },
     {
       "dir": "taste-skill-v1",
       "name": "design-taste-frontend-v1",
       "files": 2,
-      "treeHash": "932db69529af7b02cad05a8586cab87603320a53099f5976b62396c48f68a79a"
+      "treeHash": "0d57aa633a43a01cf75c95944845c1984ad42e9d5d76e7450a28d7af073e1b1b"
     },
     {
       "dir": "taste-skill-v2-experimental",
       "name": "design-taste-frontend-v2-experimental",
       "files": 2,
-      "treeHash": "8baf6cf9b2a07d52e9bac877bd6c58ac86a8110bcc4abd9cdceb30fc3584129e"
+      "treeHash": "577971cc4331035775fb26747b9dc1941d8f2adff84b8be78187e0edfa31f9d2"
     },
     {
       "dir": "gpt-tasteskill",
       "name": "gpt-taste",
       "files": 2,
-      "treeHash": "ca762335e1d7469758b8eeab1af767179a12886e72c3e08612a0f568f89e4fb5"
+      "treeHash": "24bc8d013352f32e175ad936d5796153397a89899a45044a7a0e0e0b6b5c1082"
     },
     {
       "dir": "soft-skill",
       "name": "high-end-visual-design",
       "files": 2,
-      "treeHash": "e11dcb9ab369e577945e85dcf457c74cc6479493a889ceb888c695985d41d964"
+      "treeHash": "d6ef389ce555f365d4d33a0e2b9ae0cb48ecb41ac3b2a191aa8c3c3c9000514b"
     },
     {
       "dir": "brutalist-skill",
       "name": "industrial-brutalist-ui",
       "files": 2,
-      "treeHash": "2cb5d81a6a6a854c34cab1ac12ae3ca20013231a1d91f486e2643b4f8302142a"
+      "treeHash": "fac2551f7aa733568aa5e67f5d88bcb66988069482135c801eda92a6a1a2ca8c"
     },
     {
       "dir": "minimalist-skill",
       "name": "minimalist-ui",
       "files": 2,
-      "treeHash": "b226d013635e92d7d32e8815e03e3925d4967466332fd69ac7c6dd2a2a15ac1e"
+      "treeHash": "f2c0419ad93476b3223ad195cd7e7baa16edace5bd9971cd2ebae28ab7556565"
     },
     {
       "dir": "stitch-skill",
       "name": "stitch-design-taste",
       "files": 3,
-      "treeHash": "136f6235d6657a4a572331906703d3a3eda9a0bc0aa8d2e180e2122adb90a885"
+      "treeHash": "d812a0c8f52cd88c0460a29dfbfa8490326e97ba8e01b4c6aa9cf542142df557"
     }
   ]
 }
