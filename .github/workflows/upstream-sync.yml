@@ -73,21 +73,44 @@ jobs:
       - name: 自检（打包后必须无漂移）
         run: node scripts/vendor.mjs --check
 
-      - name: 开 PR
+      - name: 推送分支并开 PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ steps.bump.outputs.version }}
           OLD_COMMIT: ${{ steps.before.outputs.commit }}
         run: |
+          set -euo pipefail
           NEW_COMMIT=$(node -p "require('./upstream.lock.json').sources[0].commit")
-          BRANCH="upstream-sync/$(echo "$NEW_COMMIT" | cut -c1-8)"
+          SHORT=$(echo "$NEW_COMMIT" | cut -c1-8)
+          BRANCH="upstream-sync/$SHORT"
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
           git add -A
-          git commit -m "chore: re-vendor taste-skill ${OLD_COMMIT:0:8} -> ${NEW_COMMIT:0:8} (v${NEW_VERSION})"
-          git push -u origin "$BRANCH"
+          if git diff --cached --quiet; then
+            echo "重新封装后没有改动，结束。"
+            exit 0
+          fi
+          git commit -m "chore: re-vendor taste-skill ${OLD_COMMIT:0:8} -> $SHORT (v${NEW_VERSION})"
+
+          # 幂等：同一上游 commit 的分支可能已经存在（前一次运行推过），
+          # 强制更新而不是让 push 因非快进而失败。
+          git push --force -u origin "$BRANCH"
+
+          # 已经是开的 PR 就不再重复创建
+          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number --jq 'length')
+          if [ "$EXISTING" != "0" ]; then
+            echo "已存在 PR，分支已更新，不重复创建。"
+            exit 0
+          fi
+
           gh pr create \
-            --title "chore: 上游 taste-skill 更新 ${OLD_COMMIT:0:8} → ${NEW_COMMIT:0:8}" \
-            --body "自动重新封装。\n\n- 上游：\`${OLD_COMMIT}\` → \`${NEW_COMMIT}\`\n- 插件版本：v${NEW_VERSION}\n- \`skills/\` 由 \`scripts/vendor.mjs\` 重建，已通过 \`--check\`\n\n合并后请发新版（打 tag 或 \`npm publish\`）。" \
+            --title "chore: 上游 taste-skill 更新 ${OLD_COMMIT:0:8} → $SHORT" \
+            --body "自动重新封装。
+
+          - 上游：\`${OLD_COMMIT}\` → \`${NEW_COMMIT}\`
+          - 插件版本：v${NEW_VERSION}
+          - \`skills/\` 由 \`scripts/vendor.mjs\` 重建，并已通过 \`--check\`
+
+          合并后请发新版（打 tag 或 \`npm publish\`）。" \
             --base main --head "$BRANCH"

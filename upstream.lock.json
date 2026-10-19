@@ -54,52 +54,52 @@
   ],
   "skills": [
     {
-      "dir": "taste-skill",
-      "name": "design-taste-frontend",
-      "files": 38,
-      "treeHash": "9ca92d720c137bf5a48789a08dd8bed2e27cf8c9013273c879bf61248022e086"
-    },
-    {
-      "dir": "taste-skill-v1",
-      "name": "design-taste-frontend-v1",
+      "dir": "brutalist-skill",
+      "name": "industrial-brutalist-ui",
       "files": 2,
-      "treeHash": "0d57aa633a43a01cf75c95944845c1984ad42e9d5d76e7450a28d7af073e1b1b"
-    },
-    {
-      "dir": "taste-skill-v2-experimental",
-      "name": "design-taste-frontend-v2-experimental",
-      "files": 2,
-      "treeHash": "577971cc4331035775fb26747b9dc1941d8f2adff84b8be78187e0edfa31f9d2"
+      "treeHash": "a4f49d24ae1208445b365e9798c8d412965d6d48bd1819b6e74b50025ffb7022"
     },
     {
       "dir": "gpt-tasteskill",
       "name": "gpt-taste",
       "files": 2,
-      "treeHash": "24bc8d013352f32e175ad936d5796153397a89899a45044a7a0e0e0b6b5c1082"
-    },
-    {
-      "dir": "soft-skill",
-      "name": "high-end-visual-design",
-      "files": 2,
-      "treeHash": "d6ef389ce555f365d4d33a0e2b9ae0cb48ecb41ac3b2a191aa8c3c3c9000514b"
-    },
-    {
-      "dir": "brutalist-skill",
-      "name": "industrial-brutalist-ui",
-      "files": 2,
-      "treeHash": "fac2551f7aa733568aa5e67f5d88bcb66988069482135c801eda92a6a1a2ca8c"
+      "treeHash": "0f55f3ad58d15b656bc59656ba35a45ec39d64f923f21f52c0a6861fc501f0c1"
     },
     {
       "dir": "minimalist-skill",
       "name": "minimalist-ui",
       "files": 2,
-      "treeHash": "f2c0419ad93476b3223ad195cd7e7baa16edace5bd9971cd2ebae28ab7556565"
+      "treeHash": "d6d54bd3f6e9a32be32345de6b8eb6ac775e9e478bd34c3bb85ce473fee1c007"
+    },
+    {
+      "dir": "soft-skill",
+      "name": "high-end-visual-design",
+      "files": 2,
+      "treeHash": "570c10c671a91fb9f37ce88dad2b891a85e30707d36837566d9139e422f7f806"
     },
     {
       "dir": "stitch-skill",
       "name": "stitch-design-taste",
       "files": 3,
-      "treeHash": "d812a0c8f52cd88c0460a29dfbfa8490326e97ba8e01b4c6aa9cf542142df557"
+      "treeHash": "90f8b1cebb0b97be87ea32d7b931e8d4e008e9d119afff04464e176112765683"
+    },
+    {
+      "dir": "taste-skill",
+      "name": "design-taste-frontend",
+      "files": 38,
+      "treeHash": "26292c043e21a4c29a65231ef6f47e5023214d5f9f16d5265d23a5380ebb44bd"
+    },
+    {
+      "dir": "taste-skill-v1",
+      "name": "design-taste-frontend-v1",
+      "files": 2,
+      "treeHash": "cbfeeb2059e0911a30f801b22c5cfb8bc57be833be576a2c9121c931a13b3848"
+    },
+    {
+      "dir": "taste-skill-v2-experimental",
+      "name": "design-taste-frontend-v2-experimental",
+      "files": 2,
+      "treeHash": "313a17fc018483977e35f3f78fc20a98eb55122dfbd3b46504bff194aeddad08"
     }
   ]
 }

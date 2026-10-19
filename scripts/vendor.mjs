@@ -18,7 +18,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,20 +105,39 @@ function parseFrontmatter(raw) {
 
 const truthy = (value) => value === true || value === 'true' || value === 'yes' || value === 'on';
 
+/** 与平台无关的比较：不用 localeCompare（结果随 locale 变），只比代码点。 */
+const byCodePoint = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
+
+/**
+ * 遍历目录并给出确定性的文件清单。
+ *
+ * **顺序必须固定**：treeHash 由这份清单拼出来，而 readdir 的返回顺序并不保证
+ * （NTFS 与 ext4 不同）。不排序的话同一份内容在 Windows 与 Linux 上会算出两个
+ * treeHash，--check 就会在 CI 上误报漂移——这是实测踩到的坑。
+ */
 async function walk(dir, base = dir) {
-  const entries = await readdir(dir, { withFileTypes: true });
+  const entries = (await readdir(dir, { withFileTypes: true }))
+    .sort((left, right) => byCodePoint(left.name, right.name));
   const files = [];
   for (const entry of entries) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) files.push(...await walk(full, base));
     else if (entry.isFile()) {
       const info = await stat(full);
-      const rel = full.slice(base.length + 1).split('\\').join('/');
+      const rel = full.slice(base.length + 1).split(sep).join('/');
       const hash = createHash('sha256').update(await readFile(full)).digest('hex').slice(0, 16);
       files.push({ path: rel, bytes: info.size, hash });
     }
   }
   return files;
+}
+
+/** treeHash 的唯一入口：先按路径排序再拼串，杜绝遍历顺序带来的漂移。 */
+function treeHashOf(files) {
+  return createHash('sha256')
+    .update([...files].sort((left, right) => byCodePoint(left.path, right.path))
+      .map((file) => `${file.path}:${file.hash}`).join('\n'))
+    .digest('hex');
 }
 
 async function main() {
@@ -190,7 +209,7 @@ async function main() {
         bodyStart,
         files: files.length,
         bytes: files.reduce((sum, file) => sum + file.bytes, 0),
-        treeHash: createHash('sha256').update(files.map((file) => `${file.path}:${file.hash}`).join('\n')).digest('hex')
+        treeHash: treeHashOf(files)
       });
       log(`纳入 ${dir} → ${data.name}（${files.length} 个文件）`);
     }
@@ -208,7 +227,7 @@ async function main() {
         const dir = join(SKILLS_OUT, skill.dir);
         if (!existsSync(dir)) { drift = true; driftReasons.push(`清单里的 ${skill.dir} 目录不存在`); continue; }
         const files = await walk(dir);
-        const treeHash = createHash('sha256').update(files.map((file) => `${file.path}:${file.hash}`).join('\n')).digest('hex');
+        const treeHash = treeHashOf(files);
         if (treeHash !== skill.treeHash) {
           drift = true;
           driftReasons.push(`${skill.dir} 内容与清单不符（treeHash ${skill.treeHash.slice(0, 12)} → ${treeHash.slice(0, 12)}），有人改过打包内容`);
@@ -238,7 +257,7 @@ async function main() {
     return;
   }
 
-  skills.sort((left, right) => left.name.localeCompare(right.name));
+  skills.sort((left, right) => byCodePoint(left.dir, right.dir));
   const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8'));
   await writeFile(MANIFEST, JSON.stringify({
     schemaVersion: 1,
