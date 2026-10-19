@@ -62,16 +62,18 @@ function makeCtx(config) {
   return state;
 }
 
+/** 主技能对外暴露的名字是插件名 `dsh-taste`，其余风格保留上游原名（按字母序）。 */
 const ALL_STYLES = [
-  'design-taste-frontend',
   'design-taste-frontend-v1',
   'design-taste-frontend-v2-experimental',
+  'dsh-taste',
   'gpt-taste',
   'high-end-visual-design',
   'industrial-brutalist-ui',
   'minimalist-ui',
   'stitch-design-taste'
 ];
+const PRIMARY_NAME = 'dsh-taste';
 
 let state;
 let allState;
@@ -108,16 +110,20 @@ test('apply() 注册了一个 skill provider 与五个工具', () => {
   }
 });
 
-test('默认只列出一个技能，skills 面因此只有一条命令', async () => {
+test('默认只列出一个技能，skills 面因此只有一条 /dsh-taste 命令', async () => {
   const candidates = await state.providers[0].list({});
   assert.equal(candidates.length, 1, '默认应只列出主技能');
   const [only] = candidates;
-  assert.equal(only.name, 'design-taste-frontend');
+  assert.equal(only.name, PRIMARY_NAME, '主技能对外暴露的名字应是插件名');
   assert.equal(only.rank, 380);
   assert.equal(only.provider, 'taste-provider');
   assert.equal(only.invocation.modelInvocable, true);
   assert.equal(only.invocation.userInvocable, true);
   assert.equal(only.resourceBase.kind, 'directory');
+  // 仍然能按新名字加载回上游正文
+  const skill = await state.providers[0].get(only, {});
+  assert.equal(skill.name, PRIMARY_NAME);
+  assert.ok(skill.content.length > 1000);
 });
 
 test('listAllStyles: true 时回到 8 个技能并列（调用策略与上游 frontmatter 一致）', async () => {
@@ -130,10 +136,21 @@ test('listAllStyles: true 时回到 8 个技能并列（调用策略与上游 fr
     assert.equal(candidate.provider, 'taste-provider');
     assert.equal(candidate.resourceBase.kind, 'directory');
   }
-  assert.equal(byName.get('design-taste-frontend').invocation.modelInvocable, true);
-  for (const other of [...byName.values()].filter((item) => item.name !== 'design-taste-frontend')) {
+  assert.equal(byName.get(PRIMARY_NAME).invocation.modelInvocable, true);
+  for (const other of [...byName.values()].filter((item) => item.name !== PRIMARY_NAME)) {
     assert.equal(other.invocation.modelInvocable, false, other.name + ' 应只按名调用');
     assert.equal(other.invocation.userInvocable, true, other.name + ' 应仍可按名调用');
+  }
+});
+
+test('primaryName 可配置，非法值在加载时就报错', async () => {
+  const custom = makeCtx({ primaryName: 'taste-pro' });
+  const [only] = await custom.providers[0].list({});
+  assert.equal(only.name, 'taste-pro');
+  assert.equal((await custom.providers[0].get(only, {})).name, 'taste-pro');
+
+  for (const bad of ['Bad Name', 'UPPER', '-leading', 'trailing-', '含中文', '']) {
+    assert.throws(() => makeCtx({ primaryName: bad }), /primaryName/, '应拒绝 ' + JSON.stringify(bad));
   }
 });
 
@@ -143,7 +160,7 @@ test('主技能正文末尾追加了其他风格的指令与文件绝对路径',
   assert.ok(skill.content.includes('Other styles shipped in this plugin'), '应有其他风格段落');
   assert.ok(skill.content.includes('| `gpt-taste` |'), '应列出 gpt-taste');
   // 7 个其他风格，每个都要给出可读的绝对路径
-  for (const style of ALL_STYLES.filter((item) => item !== 'design-taste-frontend')) {
+  for (const style of ALL_STYLES.filter((item) => item !== PRIMARY_NAME)) {
     assert.ok(skill.content.includes('`' + style + '`'), '应提到 ' + style);
   }
   assert.ok(skill.content.includes(join(SKILLS_DIR, 'gpt-tasteskill', 'SKILL.md')), '应给出绝对路径');
@@ -154,7 +171,7 @@ test('主技能正文末尾追加了其他风格的指令与文件绝对路径',
 
 test('listAllStyles 模式下不追加其他风格段落', async () => {
   const candidates = await allState.providers[0].list({});
-  const primary = candidates.find((item) => item.name === 'design-taste-frontend');
+  const primary = candidates.find((item) => item.name === PRIMARY_NAME);
   const skill = await allState.providers[0].get(primary, {});
   assert.ok(!skill.content.includes('Other styles shipped in this plugin'), '并列模式下无需追加');
 });
@@ -210,7 +227,7 @@ test('taste_status 读出打包版本与上游 commit', async () => {
   assert.equal(value.skillCount, 8, '插件仍然携带 8 个技能，只是默认只暴露 1 个');
   assert.match(value.sources[0].commit, /^[0-9a-f]{40}$/);
   const rendered = tool('taste_status').output.render({}, value)[0].text;
-  assert.match(rendered, /dsh-taste 0\.2\.0/);
+  assert.match(rendered, /dsh-taste \d+\.\d+\.\d+/);
   assert.match(rendered, /纳入 8 个技能/);
 });
 

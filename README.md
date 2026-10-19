@@ -20,12 +20,14 @@ dsh plugin --profile desktop add github:qizhuxu/dsh-taste
 
 ## skills 面只出现一条命令
 
-上游有 8 个技能。如果全列出来，技能面板与命令列表里就会出现 8 条
-（`/design-taste-frontend`、`/gpt-taste`、`/minimalist-ui`…）。本插件**默认只暴露主技能**：
+上游有 8 个技能。如果全列出来，技能面板与命令列表里就会出现 8 条。本插件**默认只暴露主技能**，而且把它的名字改成与插件同名，所以 skills 面只留下一条：
 
 ```
-/design-taste-frontend      ← 只有这一条
+/dsh-taste      ← 只有这一条，执行的是完整工作流（tasteskill v2）
 ```
+
+> 上游原名是 `design-taste-frontend`。改成 `dsh-taste` 是为了让「一个插件 = 一条命令」一眼可见。
+> 想换别的名字用配置里的 `primaryName`；想保留上游原名就设 `primaryName: design-taste-frontend`。
 
 其余 7 个风格**不单独出现**，改为在加载主技能时把它们**以指令的形式**追加到正文末尾——一张带名称与文件绝对路径的表格，外加「何时读、不要混用」的规则。需要某个风格时直接说名字即可：
 
@@ -67,11 +69,31 @@ dsh plugin --profile desktop add github:qizhuxu/dsh-taste
   name: dsh-taste
   config:
     # nodePath: C:\Program Files\nodejs\node.exe  # 默认用宿主自己的 node（process.execPath）
+    # primaryName: dsh-taste                       # 主技能对外暴露的名字，即 /命令；默认 dsh-taste
     # rank: 380                                    # 技能优先级，越小越优先
     # timeoutMs: 300000                            # 单次脚本执行超时（10000–3600000）
     # graceMs: 10000                               # 终止宽限（1000–120000）
     # listAllStyles: false                         # true 时 8 个技能各自出现在目录与命令列表
 ```
+
+## 中文文档
+
+上游技能文档全是英文。本仓库把核心部分翻成了简体中文，放在 [`docs/zh/`](docs/zh/)：
+
+| 文件 | 内容 |
+| --- | --- |
+| [`SKILL.zh.md`](docs/zh/SKILL.zh.md) | **主技能全文翻译**（完整工作流：10 步流程、固有规则、这门手艺的法则、特殊情况） |
+| [`README.zh.md`](docs/zh/README.zh.md) | 上游技能的自述 |
+| [`tells.zh.md`](docs/zh/tells.zh.md) | 要避开的"AI 味"特征清单 |
+| [`colour.zh.md`](docs/zh/colour.zh.md) | 配色 |
+| [`type.zh.md`](docs/zh/type.zh.md) | 字体与排版 |
+| [`copy.zh.md`](docs/zh/copy.zh.md) | 文案写法与禁用词 |
+| [`critique.zh.md`](docs/zh/critique.zh.md) | 评审方法 |
+| [`scenes.zh.md`](docs/zh/scenes.zh.md) | 滚动场景 |
+
+翻译只覆盖核心 8 份。上游还有 4 份篇幅最大的参考（`app-screens.md` 85 KB、`motion.md` 55 KB、`imagery.md` 51 KB、`layout.md` 18 KB、`research.md` 24 KB）**未翻译**，需要时读英文原文。
+
+> 译文由机器翻译生成，**以英文原文为准**；`skills/` 目录是上游内容的逐字节副本，不受翻译影响，也不会被 `scripts/vendor.mjs` 覆盖（翻译在 `docs/` 下，不在上游同步范围内）。
 
 ### rank 为什么是 380
 
