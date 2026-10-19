@@ -1,0 +1,13 @@
+# 打包内容的完整性靠字节级 treeHash，任何换行转换都会让 --check 误报漂移。
+# skills/ 下的文件是上游内容的逐字节副本，一律禁止改写。
+skills/** -text
+
+# 其余文本文件统一 LF，避免 Windows 上签出后与仓库内容不一致。
+* text=auto eol=lf
+
+# 二进制类
+*.png binary
+*.jpg binary
+*.webp binary
+*.woff2 binary
+*.ttf binary
