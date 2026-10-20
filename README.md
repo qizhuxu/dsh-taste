@@ -18,6 +18,23 @@ dsh plugin --profile desktop add github:qizhuxu/dsh-taste
 
 安装后**重启 DSH**（插件在宿主启动时加载，没有热重载）。装好后 `taste_status` 会告诉你打包版本与上游 commit。
 
+### 更新（这一步很容易踩坑）
+
+pnpm 会把 git 依赖**钉在解析时的那个 commit** 上，写进 profile 的 `pnpm-lock.yaml`。所以：
+
+- **新增一个插件版本不会自动来到你机器上**。上游更新、CI 自动开 PR 并合并之后，你的安装仍然停在旧 commit。
+- 在插件面板「重装/更新」也**不一定**会移动这个 pin——如果它按 lockfile 落地，那只是把旧版本重新铺一遍。
+- 想真正升上去，让 pnpm 重新解析：
+
+  ```bash
+  cd ~/.dsh/profiles/<profile>
+  pnpm update dsh-taste --lockfile-only   # 重新解析，只改 lockfile
+  pnpm install --frozen-lockfile          # 按新解析落地
+  ```
+
+  然后重启 DSH。可以先用 `pnpm update dsh-taste --lockfile-only` 看 lockfile 里 `dsh-taste/tar.gz/<commit>` 是否变成了新提交。
+- **不要手动往 `node_modules/dsh-taste` 里复制文件来"更新"**：能立刻生效，但下一次插件重装会把整个目录按 lockfile 铺回去，改动全丢（这个坑是真发生过的）。
+
 ## skills 面只出现一条命令
 
 上游有 8 个技能。如果全列出来，技能面板与命令列表里就会出现 8 条。本插件**默认只暴露主技能**，而且把它的名字改成与插件同名，所以 skills 面只留下一条：
