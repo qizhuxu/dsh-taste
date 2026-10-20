@@ -1,115 +1,19 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "0.3.0",
-  "generatedAt": "2026-10-19T16:27:47.209Z",
+  "pluginVersion": "0.3.1",
+  "generatedAt": "2026-10-20T00:45:05.511Z",
   "sources": [
     {
       "id": "taste-skill",
       "repo": "Leonxlnx/taste-skill",
       "ref": "main",
-      "commit": "b9ca2fd8047f4c72d7da90ebc1c1203e57c72cd2",
+      "commit": "63aba5f43b5056758b15bbe7d683da8c86a7a7ad",
       "homepage": "https://github.com/Leonxlnx/taste-skill",
       "license": "MIT"
     }
   ],
-  "skipped": [
-    {
-      "dir": "brandkit",
-      "name": "brandkit",
-      "reason": "上游墓碑：正文写着已迁至 github.com/Leonxlnx/imagegen-skills，真身不在本仓库"
-    },
-    {
-      "dir": "image-to-code-skill",
-      "name": "image-to-code",
-      "reason": "上游墓碑：同上"
-    },
-    {
-      "dir": "imagegen-frontend-mobile",
-      "name": "imagegen-frontend-mobile",
-      "reason": "上游墓碑：同上"
-    },
-    {
-      "dir": "imagegen-frontend-web",
-      "name": "imagegen-frontend-web",
-      "reason": "上游墓碑：同上"
-    },
-    {
-      "dir": "redesign-skill",
-      "name": "redesign-existing-projects",
-      "reason": "上游墓碑：已废弃，功能并入 design-taste-frontend"
-    }
-  ],
+  "skipped": [],
   "skills": [
-    {
-      "dir": "brutalist-skill",
-      "name": "industrial-brutalist-ui",
-      "primary": false,
-      "description": "Classic style skill, opt-in: it runs only when called by name. A hard mechanical look with Swiss type, rigid grids, extreme scale contrast and utilitarian colour.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 247,
-      "files": 2,
-      "bytes": 8408,
-      "treeHash": "a4f49d24ae1208445b365e9798c8d412965d6d48bd1819b6e74b50025ffb7022"
-    },
-    {
-      "dir": "gpt-tasteskill",
-      "name": "gpt-taste",
-      "primary": false,
-      "description": "Classic skill for GPT and Codex, opt-in: it runs only when called by name. Layout variance, a strict AIDA page structure and GSAP scroll motion.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 215,
-      "files": 2,
-      "bytes": 8292,
-      "treeHash": "0f55f3ad58d15b656bc59656ba35a45ec39d64f923f21f52c0a6861fc501f0c1"
-    },
-    {
-      "dir": "minimalist-skill",
-      "name": "minimalist-ui",
-      "primary": false,
-      "description": "Classic style skill, opt-in: it runs only when called by name. Editorial product UI with a warm monochrome palette, typographic contrast and flat bento grids.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 233,
-      "files": 2,
-      "bytes": 8301,
-      "treeHash": "d6d54bd3f6e9a32be32345de6b8eb6ac775e9e478bd34c3bb85ce473fee1c007"
-    },
-    {
-      "dir": "soft-skill",
-      "name": "high-end-visual-design",
-      "primary": false,
-      "description": "Classic style skill, opt-in: it runs only when called by name. A calm, polished look with soft contrast, generous whitespace and spring motion.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 227,
-      "files": 2,
-      "bytes": 10546,
-      "treeHash": "570c10c671a91fb9f37ce88dad2b891a85e30707d36837566d9139e422f7f806"
-    },
-    {
-      "dir": "stitch-skill",
-      "name": "stitch-design-taste",
-      "primary": false,
-      "description": "Classic skill for Google Stitch, opt-in: it runs only when called by name. Writes an agent-friendly DESIGN.md with strict type, colour and layout rules.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 233,
-      "files": 3,
-      "bytes": 23873,
-      "treeHash": "90f8b1cebb0b97be87ea32d7b931e8d4e008e9d119afff04464e176112765683"
-    },
     {
       "dir": "taste-skill",
       "name": "design-taste-frontend",
@@ -123,34 +27,6 @@
       "files": 38,
       "bytes": 2419253,
       "treeHash": "26292c043e21a4c29a65231ef6f47e5023214d5f9f16d5265d23a5380ebb44bd"
-    },
-    {
-      "dir": "taste-skill-v1",
-      "name": "design-taste-frontend-v1",
-      "primary": false,
-      "description": "The original taste-skill v1, kept for projects that depend on its exact behaviour. Opt-in: it runs only when called by name.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 210,
-      "files": 2,
-      "bytes": 21141,
-      "treeHash": "cbfeeb2059e0911a30f801b22c5cfb8bc57be833be576a2c9121c931a13b3848"
-    },
-    {
-      "dir": "taste-skill-v2-experimental",
-      "name": "design-taste-frontend-v2-experimental",
-      "primary": false,
-      "description": "The single-file, dial-driven taste-skill that was the default before v2, kept for projects that depend on its exact behaviour. Opt-in: it runs only when called by name.",
-      "whenToUse": null,
-      "modelInvocable": false,
-      "userInvocable": true,
-      "source": "taste-skill",
-      "bodyStart": 267,
-      "files": 2,
-      "bytes": 89469,
-      "treeHash": "313a17fc018483977e35f3f78fc20a98eb55122dfbd3b46504bff194aeddad08"
     }
   ]
 }
