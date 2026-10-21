@@ -5,7 +5,7 @@
       "id": "taste-skill",
       "repo": "Leonxlnx/taste-skill",
       "ref": "main",
-      "commit": "63aba5f43b5056758b15bbe7d683da8c86a7a7ad",
+      "commit": "6010f91a9935f1c167dfc500fb1a475681892e6b",
       "homepage": "https://github.com/Leonxlnx/taste-skill",
       "license": "MIT"
     }
@@ -19,7 +19,7 @@
       "dir": "taste-skill",
       "name": "design-taste-frontend",
       "files": 38,
-      "treeHash": "26292c043e21a4c29a65231ef6f47e5023214d5f9f16d5265d23a5380ebb44bd"
+      "treeHash": "4612f3e9f0915e73e6de1c0e5329638ec73c9fbf75112deb1dc96bc369311606"
     }
   ]
 }
