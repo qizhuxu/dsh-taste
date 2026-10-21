@@ -1,6 +1,6 @@
 {
   "name": "dsh-taste",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "taste-skill 的 DeepSeek Harness 原生插件：skills 面只留一条 /dsh-taste 命令，其余风格作为指令随主技能下发；上游脚本注册成 5 个工具，并可随上游自动重新封装",
   "license": "MIT",
   "author": "dsh-taste contributors",
