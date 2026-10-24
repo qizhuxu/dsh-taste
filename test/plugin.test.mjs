@@ -15,7 +15,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { apply, inject, name } from '../lib/index.js';
+import { apply, inject, name, splitArgs } from '../lib/index.js';
 import { frontmatterModelInvocable, SKILLS_DIR, stripFrontmatter } from '../lib/provider.js';
 
 /** 忠实模拟 DSH 的 subprocess.spawn 契约：handle.done + handle.collected.*.readFrom(0)。 */
@@ -44,7 +44,7 @@ function makeSpawnShim() {
 
 function makeCtx(config) {
   const { spawnShim, calls } = makeSpawnShim();
-  const state = { providers: [], tools: [], spawnCalls: calls, disposed: 0 };
+  const state = { providers: [], tools: [], commands: [], spawnCalls: calls, disposed: 0 };
   const ctx = {
     skills: {
       registerProvider(create) {
@@ -54,6 +54,7 @@ function makeCtx(config) {
       }
     },
     tools: { register: (definition) => { state.tools.push(definition); return () => { state.disposed += 1; }; } },
+    commands: { register: (definition) => { state.commands.push(definition); return () => { state.disposed += 1; }; } },
     subprocess: { spawn: spawnShim },
     on: () => {},
     logger: { warn() {}, info() {} }
@@ -93,7 +94,7 @@ after(async () => {
 
 test('插件声明了正确的 name 与 inject', () => {
   assert.equal(name, 'taste');
-  assert.deepEqual([...inject].sort(), ['skills', 'subprocess', 'tools']);
+  assert.deepEqual([...inject].sort(), ['commands', 'skills', 'subprocess', 'tools']);
 });
 
 test('apply() 注册了一个 skill provider 与五个工具', () => {
@@ -277,4 +278,66 @@ test('taste_inspect 真的启动浏览器并在三档视口判定', async () => 
   const report = JSON.parse(await readFile(join(workdir, 'inspect-out', 'report.json'), 'utf8'));
   assert.equal(report.viewports.length, 3, '应在 1440/768/390 三档各测一次');
   assert.deepEqual(report.viewports.map((item) => item.width), [1440, 768, 390]);
+});
+
+// ---------- 原生命令（/taste-lint、/taste-inspect）----------
+
+const command = (commandName) => state.commands.find((item) => item.name === commandName);
+const invoke = (rawInput) => ({
+  commandId: 'test-invocation',
+  agent: { session: { header: { cwd: workdir } } },
+  rawInput,
+  attachments: [],
+  signal: new AbortController().signal
+});
+
+test('apply() 注册了两条原生命令', () => {
+  assert.deepEqual(state.commands.map((item) => item.name).sort(), ['taste-inspect', 'taste-lint']);
+  for (const definition of state.commands) {
+    assert.equal(typeof definition.description, 'string');
+    assert.ok(definition.description.length > 0);
+    assert.equal(typeof definition.handler, 'function');
+    assert.equal(typeof definition.input?.hint, 'string');
+  }
+});
+
+test('splitArgs 支持引号里的空格、= 取值与转义引号', () => {
+  assert.deepEqual(splitArgs('a.html b.html'), ['a.html', 'b.html']);
+  assert.deepEqual(splitArgs('  '), []);
+  assert.deepEqual(splitArgs('"C:\\a b\\index.html" --app'), ['C:\\a b\\index.html', '--app']);
+  assert.deepEqual(splitArgs('--out="my dir" x'), ['--out=my dir', 'x']);
+  assert.deepEqual(splitArgs('"say \\"hi\\""'), ['say "hi"']);
+});
+
+test('/taste-lint 真的跑起来，退出码 1 按结论（success）回显 FAIL 清单', async () => {
+  const page = join(workdir, 'cmd-bad.html');
+  await writeFile(page, '<style>.a{background:linear-gradient(red,blue);font-family:ui-monospace}</style>', 'utf8');
+  const result = await command('taste-lint').handler(invoke('"' + page + '" --json'));
+  assert.equal(result.kind, 'success', '退出码 1 是检查结论，不应回 error：' + result.text);
+  assert.match(result.text, /FAIL/);
+  assert.match(result.text, /gradient/);
+  assert.match(result.text, /是检查结论，不是执行故障/);
+  assert.ok(state.spawnCalls.some((argv) => argv.some((item) => String(item).endsWith('lint.mjs'))), '应真的调用了 lint.mjs');
+});
+
+test('/taste-lint 对干净页面以 success 结束且 0 FAIL', async () => {
+  const page = join(workdir, 'cmd-good.html');
+  await writeFile(page, '<style>body{background:#101010;color:#f5f5f5;font-size:17px}h1{font-size:2.5rem}</style><h1>干净</h1>', 'utf8');
+  const result = await command('taste-lint').handler(invoke(page));
+  assert.equal(result.kind, 'success', result.text);
+  // 干净结果的汇总行本身就是 "RESULT: 0 FAIL, 0 WARN"，所以断言要盯住这个计数
+  assert.match(result.text, /RESULT: 0 FAIL, 0 WARN/);
+  assert.doesNotMatch(result.text, /RESULT: [1-9]/);
+});
+
+test('/taste-inspect 缺 target 时给出用法而不是抛错', async () => {
+  const result = await command('taste-inspect').handler(invoke('--app'));
+  assert.equal(result.kind, 'error');
+  assert.match(result.text, /用法：\/taste-inspect/);
+});
+
+test('/taste-inspect 的 --out 缺取值时报错', async () => {
+  const result = await command('taste-inspect').handler(invoke('page.html --out'));
+  assert.equal(result.kind, 'error');
+  assert.match(result.text, /--out 缺少取值/);
 });
