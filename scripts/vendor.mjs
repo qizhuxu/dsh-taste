@@ -12,6 +12,9 @@
  *  - **零运行时依赖**：只用 node 内置模块与 git。
  *  - **目录只增不减会被发现**：upstream.lock.json 记录上游 skills/ 下的全部目录名，
  *    上游新增或删除技能时 --check 会报出来。
+ *  - **本地风格单独记账**：upstream.config.json 的 localStyles 列出「上游已删除、但本插件
+ *    继续携带」的风格目录。它们只被读取（不复制、不覆盖、不删除），以 origin: "local"
+ *    写进清单，且不计入 lock 的 upstreamDirs，因此不影响上游目录集合的比对。
  */
 
 import { createHash } from 'node:crypto';
@@ -140,6 +143,43 @@ function treeHashOf(files) {
     .digest('hex');
 }
 
+/**
+ * 由**仓库里已就位**的 skills/<dir> 生成清单条目，用于 upstream.config.json 的 localStyles。
+ *
+ * 与上游目录的区别只有两点：不从这里复制文件（目录本身是本仓库维护的资产），
+ * 以及 origin 记为 local（不参与 upstreamDirs 的集合比对）。字段口径与上游条目完全一致，
+ * 这样 provider 读清单时不需要区分来源。
+ */
+async function localStyleEntry(dir) {
+  const target = join(SKILLS_OUT, dir);
+  const skillFile = join(target, 'SKILL.md');
+  if (!existsSync(skillFile)) {
+    throw new Error(`localStyles 里的 ${dir} 在 skills/ 下不存在或缺 SKILL.md：请恢复该目录，或把它从 upstream.config.json 的 localStyles 里移除`);
+  }
+  const raw = await readFile(skillFile, 'utf8');
+  const { data, bodyStart } = parseFrontmatter(raw);
+  if (typeof data.name !== 'string' || data.name.length === 0) {
+    throw new Error(`localStyles 里的 ${dir} frontmatter 缺 name`);
+  }
+  await assertNoCrlf(target);
+  const files = await walk(target);
+  return {
+    dir,
+    name: data.name,
+    primary: false,
+    description: typeof data.description === 'string' ? data.description : '',
+    whenToUse: typeof data.whenToUse === 'string' && data.whenToUse.length > 0 ? data.whenToUse : null,
+    modelInvocable: !truthy(data['disable-model-invocation']),
+    userInvocable: data['user-invocable'] === undefined ? true : truthy(data['user-invocable']),
+    source: 'local',
+    origin: 'local',
+    bodyStart,
+    files: files.length,
+    bytes: files.reduce((sum, file) => sum + file.bytes, 0),
+    treeHash: treeHashOf(files)
+  };
+}
+
 async function main() {
   const config = JSON.parse(await readFile(join(ROOT, 'upstream.config.json'), 'utf8'));
   const previousLock = existsSync(LOCK) ? JSON.parse(await readFile(LOCK, 'utf8')) : null;
@@ -208,6 +248,7 @@ async function main() {
         modelInvocable: !truthy(data['disable-model-invocation']),
         userInvocable: data['user-invocable'] === undefined ? true : truthy(data['user-invocable']),
         source: source.id,
+        origin: 'upstream',
         bodyStart,
         files: files.length,
         bytes: files.reduce((sum, file) => sum + file.bytes, 0),
@@ -218,6 +259,15 @@ async function main() {
 
     const licenseFile = join(work, 'LICENSE');
     if (existsSync(licenseFile)) await cp(licenseFile, join(SKILLS_OUT, 'UPSTREAM-LICENSE.txt'));
+  }
+
+  if (!checkOnly) {
+    // 上游已删除、但本插件继续携带的风格目录：只读仓库里已就位的副本
+    for (const dir of config.localStyles ?? []) {
+      const entry = await localStyleEntry(dir);
+      skills.push(entry);
+      log(`保留本地风格 ${entry.dir} → ${entry.name}（${entry.files} 个文件）`);
+    }
   }
 
   if (checkOnly) {
@@ -235,14 +285,21 @@ async function main() {
           driftReasons.push(`${skill.dir} 内容与清单不符（treeHash ${skill.treeHash.slice(0, 12)} → ${treeHash.slice(0, 12)}），有人改过打包内容`);
         }
       }
-      // 2) 上游目录集合与锁定文件的一致性
+      // 1b) 配置里声明的本地风格必须都在清单里，否则风格面会静默消失
+      for (const dir of config.localStyles ?? []) {
+        if (!localTree.skills.some((item) => item.dir === dir && item.origin === 'local')) {
+          drift = true;
+          driftReasons.push(`upstream.config.json 声明的本地风格 ${dir} 不在清单里，需要运行 node scripts/vendor.mjs`);
+        }
+      }
+      // 2) **上游**目录集合与锁定文件的一致性（本地风格不计入 upstreamDirs）
       const lock = existsSync(LOCK) ? JSON.parse(await readFile(LOCK, 'utf8')) : null;
       if (lock !== null) {
         const recordedUpstream = [...(lock.upstreamDirs ?? [])].sort().join(',');
-        const recordedLocal = [...localTree.skills.map((item) => item.dir), ...(localTree.skipped ?? []).map((item) => item.dir)].sort().join(',');
-        if (recordedUpstream !== recordedLocal) {
+        const listedUpstream = [...localTree.skills.filter((item) => item.origin !== 'local').map((item) => item.dir), ...(localTree.skipped ?? []).map((item) => item.dir)].sort().join(',');
+        if (recordedUpstream !== listedUpstream) {
           drift = true;
-          driftReasons.push(`上游目录集合与锁定文件不一致：lock ${recordedUpstream} / 本地 ${recordedLocal}`);
+          driftReasons.push(`上游目录集合与锁定文件不一致：lock ${recordedUpstream} / 清单 ${listedUpstream}`);
         }
       }
       const recorded = localTree.skills.map((item) => item.dir).sort().join(',');
@@ -274,9 +331,9 @@ async function main() {
   await writeFile(LOCK, JSON.stringify({
     schemaVersion: 1,
     sources,
-    upstreamDirs: skills.map((item) => item.dir).concat(skipped.map((item) => item.dir)).sort(),
+    upstreamDirs: skills.filter((item) => item.origin !== 'local').map((item) => item.dir).concat(skipped.map((item) => item.dir)).sort(),
     skipped,
-    skills: skills.map((item) => ({ dir: item.dir, name: item.name, files: item.files, treeHash: item.treeHash }))
+    skills: skills.filter((item) => item.origin !== 'local').map((item) => ({ dir: item.dir, name: item.name, files: item.files, treeHash: item.treeHash }))
   }, null, 2) + '\n', 'utf8');
 
   await rm(TMP, { recursive: true, force: true });

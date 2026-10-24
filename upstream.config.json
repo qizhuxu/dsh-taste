@@ -20,8 +20,19 @@
     "imagegen-frontend-mobile": "上游墓碑：同上",
     "redesign-skill": "上游墓碑：已废弃，功能并入 design-taste-frontend"
   },
+  "localStyles": [
+    "taste-skill-v1",
+    "taste-skill-v2-experimental",
+    "brutalist-skill",
+    "gpt-tasteskill",
+    "minimalist-skill",
+    "soft-skill",
+    "stitch-skill"
+  ],
+  "localStylesComment": "上游已把这 7 个风格目录从 skills/ 移除（现在只剩 taste-skill），但本插件继续携带它们（README 的 8 技能形态：1 个主技能 + 7 个风格）。它们是 v0.1.0 封装上游旧版布局时的冻结副本，此后由本仓库自行维护：vendor.mjs 只读它们，不复制、不覆盖、不删除，并以 origin=\"local\" 写进 manifest 的 skills 数组（primary 为 false；正文里的 disable-model-invocation: true 让它们只按名调用）。它们不计入 upstream.lock.json 的 upstreamDirs。",
   "notes": [
     "skip 只影响是否复制进本仓库并在目录里出现，不影响 upstream.lock.json 记录上游全部目录，便于审计上游新增/删除。",
-    "新增的上游技能若不在 skip 里，会被自动纳入，无需改这里的代码；它们会自动成为「主技能正文里可点名的其他风格」。"
+    "新增的上游技能若不在 skip 里，会被自动纳入，无需改这里的代码；它们会自动成为「主技能正文里可点名的其他风格」。",
+    "localStyles 是「上游已删除、本插件继续携带」的风格目录，清单里 origin 为 local；补删它们要同时改这里与 skills/ 目录，--check 会报出不一致。"
   ]
 }
