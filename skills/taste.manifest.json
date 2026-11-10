@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "0.3.4",
-  "generatedAt": "2026-11-05T10:57:19.777Z",
+  "pluginVersion": "0.3.5",
+  "generatedAt": "2026-11-10T11:14:07.791Z",
   "sources": [
     {
       "id": "taste-skill",
       "repo": "Leonxlnx/taste-skill",
       "ref": "main",
-      "commit": "9b4bf937a1f69348126959c15d2f99a73e65699b",
+      "commit": "f6b76575f949707b4e3c37cd86cb44b0b98643e8",
       "homepage": "https://github.com/Leonxlnx/taste-skill",
       "license": "MIT"
     }
@@ -93,16 +93,16 @@
       "dir": "taste-skill",
       "name": "design-taste-frontend",
       "primary": true,
-      "description": "tasteskill 2.5.0, the anti-slop frontend skill. Builds professional company websites at the level of figma.com and x.ai: plain copy, one system, one section per screen, equal edges, real photographs and real product UI (product renders when there are no photographs), with shader effects, scenes and moments only on tech, gaming and software pages, quiet micro-interactions, and a checker that enforces it in a real browser. Use this whenever you build, design, redesign, restyle, polish or review a landing page, company, product, shop, cafe, hotel, studio, SaaS, AI, developer-tool or game site, in any stack (HTML/CSS, React, Next.js, Vue, Svelte, Astro, Tailwind), or when the user says a page looks generic, templated or \"AI-made\".",
+      "description": "tasteskill 2.5.1, the anti-slop frontend skill. Builds professional company websites at the level of figma.com and x.ai: plain copy in a voice of its own, one system, one section per screen, equal edges, real photographs and real product UI (licensed stand-in photographs when the client has none; a product render only when the brief asks for 3D), a hero entrance and one or two dealt moments on every page, shader effects and scenes only on tech, gaming and software pages, quiet micro-interactions, and a checker and finish gate that enforce it in a real browser. Use this whenever you build, design, redesign, restyle, polish or review a landing page, company, product, shop, cafe, hotel, studio, SaaS, AI, developer-tool or game site, as static HTML/CSS or inside an existing React, Next.js, Vue, Svelte, Astro or Tailwind project, or when the user says a page looks generic, templated or \"AI-made\".",
       "whenToUse": null,
       "modelInvocable": true,
       "userInvocable": true,
       "source": "taste-skill",
       "origin": "upstream",
-      "bodyStart": 805,
-      "files": 1617,
-      "bytes": 36119617,
-      "treeHash": "09c53903e0b448b444296d5c60767247ba228309567a78b7b375150a9e2efe01"
+      "bodyStart": 2117,
+      "files": 1631,
+      "bytes": 36601022,
+      "treeHash": "7c3e6f1867f67428895d9394376a5885b8ee5b405b8fd586dfffc1f54bdd8633"
     },
     {
       "dir": "taste-skill-v1",
