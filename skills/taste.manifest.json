@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "0.3.5",
-  "generatedAt": "2026-11-10T11:14:07.791Z",
+  "pluginVersion": "0.3.6",
+  "generatedAt": "2026-11-25T12:57:02.345Z",
   "sources": [
     {
       "id": "taste-skill",
       "repo": "Leonxlnx/taste-skill",
       "ref": "main",
-      "commit": "f6b76575f949707b4e3c37cd86cb44b0b98643e8",
+      "commit": "d1a2bb41d927083ac7118f60cfc9cdf711810ea0",
       "homepage": "https://github.com/Leonxlnx/taste-skill",
       "license": "MIT"
     }
